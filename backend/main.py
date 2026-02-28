@@ -1,6 +1,7 @@
 """MindKiln AI – FastAPI backend. Single endpoint: POST /generate-plan."""
 
 import os
+import uvicorn
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException
@@ -25,6 +26,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
 
 @app.get("/health")
 def health():

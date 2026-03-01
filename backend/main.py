@@ -36,21 +36,31 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "message": "MindKiln AI Backend is running"}
+    # Return more info to help debug
+    return {
+        "status": "ok", 
+        "message": "MindKiln AI Backend is running",
+        "api_key_configured": bool(os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY"))
+    }
 
 
 @app.post("/generate-plan", response_model=ExecutionPlan)
 def generate_plan_endpoint(body: GoalRequest):
     try:
+        # Check API key early
+        if not (os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")):
+            raise ValueError("API Key is missing in Railway Variables")
+            
         plan = generate_plan(body.goal.strip())
         return plan
     except ValueError as e:
-        # Likely missing API key or invalid input
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         print(f"Error generating plan: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate plan. Please check backend logs.")
+        raise HTTPException(status_code=500, detail=f"Backend Error: {str(e)}")
 
+# This block is for local development (run with: python main.py)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    print(f"Starting server on port {port}...")
     uvicorn.run("main:app", host="0.0.0.0", port=port)

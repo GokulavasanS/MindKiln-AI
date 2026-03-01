@@ -5,6 +5,12 @@ import LoadingSpinner from './components/LoadingSpinner'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
+// Debug log for deployment
+if (API_BASE.includes('your-app.up.railway.app')) {
+  console.warn('VITE_API_URL is still set to placeholder. Please update it in Vercel environment variables.')
+}
+console.log('App connecting to API at:', API_BASE || '(local proxy)')
+
 export default function App() {
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -14,17 +20,31 @@ export default function App() {
     setError(null)
     setPlan(null)
     setLoading(true)
+
+    // Ensure URL is clean
+    const apiUrl = `${API_BASE.replace(/\/$/, '')}/generate-plan`
+
     try {
-      const res = await fetch(`${API_BASE}/generate-plan`, {
+      const res = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ goal }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Failed to generate plan')
+
+      let data
+      try {
+        data = await res.json()
+      } catch (e) {
+        throw new Error(`Server returned non-JSON response (Status: ${res.status}). Check if the backend is running correctly at ${API_BASE}`)
+      }
+
+      if (!res.ok) {
+        throw new Error(data.detail || `Server error: ${res.status}`)
+      }
       setPlan(data)
     } catch (e) {
-      setError(e.message)
+      console.error('API Error:', e)
+      setError(e.message || 'Something went wrong while connecting to the backend.')
     } finally {
       setLoading(false)
     }

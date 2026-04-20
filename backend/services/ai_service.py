@@ -11,7 +11,8 @@ from openai import OpenAI
 from models.schemas import ExecutionPlan
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
-LLAMA_MODEL = "meta-llama/llama-3.3-70b-instruct"
+OPENROUTER_MODEL = "meta-llama/llama-3.3-70b-instruct"
+OPENAI_MODEL = "gpt-4o-mini"
 MAX_RETRIES = 3
 
 SYSTEM_PROMPT = """You are MindKiln, an AI Execution Coach.
@@ -62,11 +63,13 @@ User goal:
 {goal}"""
 
 
-def _get_client() -> OpenAI:
-    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
-    if not api_key:
+def _get_client_and_model() -> tuple[OpenAI, str]:
+    if os.getenv("OPENROUTER_API_KEY"):
+        return OpenAI(base_url=OPENROUTER_BASE, api_key=os.getenv("OPENROUTER_API_KEY")), OPENROUTER_MODEL
+    elif os.getenv("OPENAI_API_KEY"):
+        return OpenAI(api_key=os.getenv("OPENAI_API_KEY")), OPENAI_MODEL
+    else:
         raise ValueError("OPENROUTER_API_KEY or OPENAI_API_KEY must be set")
-    return OpenAI(base_url=OPENROUTER_BASE, api_key=api_key)
 
 
 def _extract_json(text: str) -> dict[str, Any] | None:
@@ -86,14 +89,14 @@ def _extract_json(text: str) -> dict[str, Any] | None:
 
 def generate_plan(goal: str) -> ExecutionPlan:
     """Call OpenRouter LLM and return validated ExecutionPlan. Retries on invalid JSON."""
-    client = _get_client()
+    client, model_name = _get_client_and_model()
     user_prompt = USER_PROMPT_TEMPLATE.format(goal=goal)
     last_error: Exception | None = None
 
     for attempt in range(MAX_RETRIES):
         try:
             response = client.chat.completions.create(
-                model=LLAMA_MODEL,
+                model=model_name,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},

@@ -68,11 +68,10 @@ export default function PlanHistoryPage() {
                 key={p.id}
                 type="button"
                 onClick={() => setSelectedId(p.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm border transition-colors ${
-                  p.id === selectedId
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm border transition-colors ${p.id === selectedId
                     ? 'border-kiln-500 bg-kiln-50'
                     : 'border-transparent hover:border-kiln-200 hover:bg-kiln-50/60'
-                }`}
+                  }`}
               >
                 <p className="line-clamp-2 text-kiln-800 text-xs mb-1">{p.goal_text}</p>
                 <p className="text-[11px] text-kiln-500">

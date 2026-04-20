@@ -1,14 +1,14 @@
-# MindKiln AI
+## MindKiln AI
 
-**Turn messy thoughts into structured execution.**
+**Turn messy thoughts into clear execution.**
 
-MVP: User enters a vague goal → receives a structured, prioritized execution plan (no auth, no database).
+Stage 2: AI Execution Coach with authentication, MongoDB, saved plans, and progress tracking.
 
 ---
 
-## Run locally
+### Run locally
 
-### Backend
+#### Backend
 
 ```bash
 cd backend
@@ -18,21 +18,27 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Create `.env` in `backend/` (copy from `.env.example`):
+Create `.env` in `backend/` (or copy from `.env.example` if present):
 
-```
+```bash
 OPENROUTER_API_KEY=sk-or-v1-your-key
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB_NAME=mindkiln
+JWT_SECRET_KEY=your-very-secret-key
+CORS_ORIGINS=http://localhost:5173
 ```
 
-Get a key at [OpenRouter](https://openrouter.ai/keys). Then:
+Get a key at [OpenRouter](https://openrouter.ai/keys).
+
+Then start FastAPI:
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-API: `http://localhost:8000`. Docs: `http://localhost:8000/docs`.
+API docs: `http://localhost:8000/docs`.
 
-### Frontend
+#### Frontend
 
 ```bash
 cd frontend
@@ -40,71 +46,52 @@ npm install
 npm run dev
 ```
 
-App: `http://localhost:5173`. Vite proxies `/generate-plan` and `/health` to the backend.
+App: `http://localhost:5173`. Vite proxies `/health`, `/auth`, `/generate-plan`, `/plans`, and `/steps` to the backend during local development.
 
 ---
 
-## Deploy
+### API overview (Stage 2)
 
-### Backend (Railway)
+- `POST /auth/register` – create an account with email + password.
+- `POST /auth/login` – obtain a JWT access token.
+- `POST /generate-plan` – generate an execution plan (authenticated), persist goal + plan, and return:
 
-1. Create a project at [Railway](https://railway.app). Add a new service.
-2. Connect your repo and set **Root Directory** to `backend`.
-3. **Variables**: add `OPENROUTER_API_KEY` (and optionally `CORS_ORIGINS` with your Vercel URL, e.g. `https://mindkiln-ai.vercel.app`).
-4. **Settings → Deploy**: Build command leave empty or `pip install -r requirements.txt`. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`.
-5. Deploy and copy the public URL (e.g. `https://your-app.up.railway.app`).
+  ```json
+  {
+    "goal_summary": "",
+    "reality_check": "",
+    "reframe": "",
+    "priority_level": "",
+    "estimated_total_time": "",
+    "execution_plan": [
+      {
+        "step_id": "uuid",
+        "step_number": 1,
+        "title": "",
+        "description": "",
+        "estimated_time": "",
+        "priority": "",
+        "completed": false
+      }
+    ],
+    "first_action_to_take_now": ""
+  }
+  ```
 
-### Frontend (Vercel)
+- `GET /plans` – list all plans for the authenticated user (id, goal text, summary, timestamps).
+- `GET /plans/{id}` – return a single plan with original goal and full execution structure.
+- `PATCH /steps/{step_id}` – mark a step as completed/incomplete.
 
-1. Push the repo to GitHub and import the repo in [Vercel](https://vercel.com).
-2. Set **Root Directory** to `frontend`.
-3. **Environment variables**: add `VITE_API_URL` = your Railway backend URL (e.g. `https://your-app.up.railway.app`). No trailing slash.
-4. Deploy. Vercel will run `npm run build` and serve the app.
-
----
-
-## Example test
-
-**Input (POST `/generate-plan`):**
-
-```json
-{
-  "goal": "I need to prepare for a software engineering interview but I feel overwhelmed"
-}
-```
-
-**Example output (structure only; actual text may vary):**
-
-```json
-{
-  "goal_summary": "Structured preparation for a software engineering interview with clear steps.",
-  "priority_level": "High",
-  "estimated_total_time": "2 weeks",
-  "execution_plan": [
-    {
-      "step_number": 1,
-      "title": "List target companies and job levels",
-      "description": "Write down 5–10 companies and whether you're aiming for mid/senior. Focus on roles that match your experience.",
-      "estimated_time": "1 hour",
-      "priority": "High"
-    },
-    {
-      "step_number": 2,
-      "title": "Brush up on data structures and algorithms",
-      "description": "Practice arrays, hash maps, trees, and graphs. Use one resource (e.g. LeetCode or a book) consistently.",
-      "estimated_time": "3–5 days",
-      "priority": "High"
-    }
-  ],
-  "first_action_to_take_now": "Spend the next 30 minutes writing a short list of 5 companies you want to apply to and the job level (e.g. mid-level backend)."
-}
-```
+All protected endpoints expect an `Authorization: Bearer <token>` header using the JWT from `/auth/login`.
 
 ---
 
-## Project layout
+### Project layout
 
-- **backend/** – FastAPI, `POST /generate-plan`, OpenRouter + LLaMA, retry on invalid JSON.
-- **frontend/** – React (Vite), Tailwind, single dashboard with GoalInput, PlanDisplay, LoadingSpinner.
+- **backend/** – FastAPI, OpenRouter + LLaMA, JWT auth, MongoDB (via PyMongo), plan persistence.
+- **frontend/** – React (Vite), Tailwind, routing with:
+  - Landing page (`/`) – “Turn messy thoughts into clear execution.”
+  - Workspace dashboard (`/app`) – Goal input + AI thinking workspace.
+  - Plan history (`/history`) – previously saved goals and plans.
 
-No auth, no database, no external APIs beyond OpenRouter.
+Plans are saved per user with step-level completion tracking.

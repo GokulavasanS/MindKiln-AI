@@ -1,35 +1,45 @@
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import PlanHistoryPage from './pages/PlanHistoryPage'
 
-function Shell({ children }) {
+function NavLink({ to, children }) {
+  const location = useLocation()
+  const isActive = location.pathname === to
   return (
-    <div className="min-h-screen flex flex-col bg-kiln-50">
-      <nav className="border-b border-kiln-200 bg-white/80 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="h-6 w-6 rounded-lg bg-kiln-700 text-[11px] flex items-center justify-center text-white font-semibold">
+    <Link
+      to={to}
+      className={`text-caption font-medium transition-opacity duration-180 ${
+        isActive ? 'text-ink opacity-100' : 'text-ash hover:text-ink-light opacity-70 hover:opacity-100'
+      }`}
+    >
+      {children}
+    </Link>
+  )
+}
+
+function Shell({ children }) {
+  const location = useLocation()
+  const isLanding = location.pathname === '/'
+
+  // Landing page has its own full-bleed layout — no shell nav
+  if (isLanding) return <>{children}</>
+
+  return (
+    <div className="min-h-screen flex flex-col bg-paper">
+      <nav className="border-b border-ink/[0.06] bg-paper/90 backdrop-blur-sm sticky top-0 z-20">
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between gap-6">
+          <Link to="/" className="flex items-center gap-3 group">
+            {/* Kiln mark — a small clay square with rough edges */}
+            <span className="h-7 w-7 bg-clay flex items-center justify-center text-paper text-micro font-semibold"
+              style={{ borderRadius: '2px' }}>
               MK
             </span>
-            <div>
-              <p className="text-sm font-semibold text-kiln-800 leading-none">MindKiln AI</p>
-              <p className="text-[11px] text-kiln-500 leading-none mt-0.5">AI Execution Coach</p>
-            </div>
+            <span className="font-serif text-lg text-ink tracking-tight">MindKiln</span>
           </Link>
-          <div className="flex items-center gap-4 text-xs font-medium">
-            <Link
-              to="/app"
-              className="text-kiln-700 hover:text-kiln-900"
-            >
-              Workspace
-            </Link>
-            <Link
-              to="/history"
-              className="text-kiln-700 hover:text-kiln-900"
-            >
-              Plan history
-            </Link>
+          <div className="flex items-center gap-5">
+            <NavLink to="/app">Workspace</NavLink>
+            <NavLink to="/history">History</NavLink>
           </div>
         </div>
       </nav>
@@ -41,32 +51,13 @@ function Shell({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Shell>
-              <LandingPage />
-            </Shell>
-          }
-        />
-        <Route
-          path="/app"
-          element={
-            <Shell>
-              <DashboardPage />
-            </Shell>
-          }
-        />
-        <Route
-          path="/history"
-          element={
-            <Shell>
-              <PlanHistoryPage />
-            </Shell>
-          }
-        />
-      </Routes>
+      <Shell>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/app" element={<DashboardPage />} />
+          <Route path="/history" element={<PlanHistoryPage />} />
+        </Routes>
+      </Shell>
     </BrowserRouter>
   )
 }

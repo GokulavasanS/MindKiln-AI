@@ -47,67 +47,113 @@ export default function PlanHistoryPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b border-kiln-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-4">
-          <h1 className="font-semibold text-xl text-kiln-800">Plan history</h1>
-          <p className="text-sm text-kiln-600 mt-0.5">Review and reopen your previous execution plans.</p>
+      <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-10 sm:py-14">
+        {/* Page header */}
+        <div className="mb-10 animate-fade-in">
+          <h1 className="font-serif text-display-sm text-ink mb-2"
+            style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)' }}>
+            History
+          </h1>
+          <p className="text-body text-ash">
+            Every mess you've shaped. Revisit and continue.
+          </p>
         </div>
-      </header>
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <section className="space-y-3">
-          <h2 className="text-xs font-semibold text-kiln-600 uppercase tracking-[0.14em] mb-1">
-            Previous goals
-          </h2>
-          <div className="rounded-xl border border-kiln-200 bg-white p-3 max-h-[480px] overflow-y-auto space-y-1">
-            {loadingList && <p className="text-xs text-kiln-500">Loading…</p>}
-            {!loadingList && plans.length === 0 && (
-              <p className="text-sm text-kiln-500">No plans yet. Generate a plan from the dashboard first.</p>
-            )}
-            {plans.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setSelectedId(p.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm border transition-colors ${p.id === selectedId
-                    ? 'border-kiln-500 bg-kiln-50'
-                    : 'border-transparent hover:border-kiln-200 hover:bg-kiln-50/60'
-                  }`}
-              >
-                <p className="line-clamp-2 text-kiln-800 text-xs mb-1">{p.goal_text}</p>
-                <p className="text-[11px] text-kiln-500">
-                  {new Date(p.created_at).toLocaleString(undefined, {
-                    dateStyle: 'medium',
-                    timeStyle: 'short',
-                  })}
-                </p>
-              </button>
-            ))}
-          </div>
-        </section>
 
-        <section className="space-y-3">
-          <h2 className="text-xs font-semibold text-kiln-600 uppercase tracking-[0.14em] mb-1">Plan details</h2>
-          <div className="rounded-xl border border-kiln-200 bg-white p-4 min-h-[260px]">
-            {loadingDetail && <p className="text-xs text-kiln-500">Loading plan…</p>}
-            {error && <p className="text-xs text-red-600 mb-2">{error}</p>}
-            {!loadingDetail && !selectedPlan && !error && (
-              <p className="text-sm text-kiln-500">Select a plan on the left to view its details.</p>
-            )}
-            {selectedPlan && (
-              <div className="space-y-3">
-                <div className="rounded-xl border border-kiln-100 bg-kiln-50/70 p-3">
-                  <p className="text-xs font-medium text-kiln-600 uppercase tracking-[0.16em] mb-1">
-                    Original goal
+        <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] items-start">
+          {/* Plan list — left sidebar */}
+          <section className="animate-fade-in">
+            <p className="text-micro uppercase tracking-[0.14em] text-ash mb-4">
+              Previous goals
+            </p>
+
+            <div className="space-y-1 max-h-[520px] overflow-y-auto pr-1"
+              style={{ scrollbarWidth: 'thin', scrollbarColor: '#B5AFA7 transparent' }}>
+              {loadingList && (
+                <p className="text-caption text-ash italic font-hand text-lg">Loading…</p>
+              )}
+              {!loadingList && plans.length === 0 && (
+                <div className="py-8 text-center">
+                  <p className="font-hand text-lg text-ash-dark">
+                    No plans yet.
                   </p>
-                  <p className="text-sm text-kiln-800 whitespace-pre-line">{selectedPlan.goal_text}</p>
+                  <p className="text-caption text-ash mt-1">
+                    Go to the workspace and forge your first one.
+                  </p>
                 </div>
+              )}
+              {plans.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setSelectedId(p.id)}
+                  className={`w-full text-left px-4 py-3 transition-all duration-180 group ${
+                    p.id === selectedId
+                      ? 'bg-white shadow-torn'
+                      : 'hover:bg-white/50'
+                  }`}
+                  style={{ borderRadius: '2px' }}
+                >
+                  <p className={`text-caption leading-snug mb-1 line-clamp-2 ${
+                    p.id === selectedId ? 'text-ink font-medium' : 'text-ink-light'
+                  }`}>
+                    {p.goal_text}
+                  </p>
+                  <p className="text-micro text-ash">
+                    {new Date(p.created_at).toLocaleString(undefined, {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Plan detail — right content */}
+          <section className="min-h-[300px]">
+            {loadingDetail && (
+              <div className="forge-loading">
+                <div className="ember" />
+                <p className="font-hand text-lg text-ash-dark">Loading plan…</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="torn-paper p-5">
+                <div className="relative z-10">
+                  <p className="text-caption text-clay">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {!loadingDetail && !selectedPlan && !error && (
+              <div className="py-16 text-center animate-fade-in">
+                <p className="font-hand text-xl text-ash-dark">
+                  Select a plan to revisit it.
+                </p>
+              </div>
+            )}
+
+            {selectedPlan && !loadingDetail && (
+              <div className="animate-fade-in">
+                {/* Original goal */}
+                <div className="torn-paper p-5 mb-8">
+                  <div className="relative z-10">
+                    <p className="text-micro uppercase tracking-[0.14em] text-ash mb-2">
+                      Original goal
+                    </p>
+                    <p className="font-hand text-lg text-ink-light leading-relaxed whitespace-pre-line">
+                      {selectedPlan.goal_text}
+                    </p>
+                  </div>
+                </div>
+
                 <PlanDisplay plan={selectedPlan} />
               </div>
             )}
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
     </div>
   )
 }
-

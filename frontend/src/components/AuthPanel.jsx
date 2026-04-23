@@ -26,51 +26,70 @@ export default function AuthPanel({ onAuthenticated }) {
   }
 
   return (
-    <div className="rounded-xl border border-kiln-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-medium text-kiln-600 uppercase tracking-wider">
-          {mode === 'login' ? 'Welcome back' : 'Create account'}
-        </h2>
-        <button
-          type="button"
-          className="text-xs text-kiln-500 hover:text-kiln-700 underline underline-offset-2"
-          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-        >
-          {mode === 'login' ? 'New here? Sign up' : 'Have an account? Log in'}
-        </button>
+    <div className="torn-paper p-6 sm:p-8">
+      <div className="relative z-10">
+        <div className="flex items-baseline justify-between mb-5">
+          <h2 className="font-serif text-xl text-ink">
+            {mode === 'login' ? 'Welcome back' : 'Join the kiln'}
+          </h2>
+          <button
+            type="button"
+            className="text-caption text-ash hover:text-ink-light transition-opacity duration-180"
+            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          >
+            {mode === 'login' ? 'New here?' : 'Have an account?'}
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="ink-underline">
+            <label className="block text-micro uppercase tracking-[0.12em] text-ash mb-1.5">
+              Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-0 py-2 bg-transparent border-none border-b border-ink/10 text-body text-ink placeholder-ash-light focus:outline-none"
+              style={{ borderBottom: '1px solid rgba(28, 26, 23, 0.1)' }}
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <div className="ink-underline">
+            <label className="block text-micro uppercase tracking-[0.12em] text-ash mb-1.5">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="w-full px-0 py-2 bg-transparent border-none border-b border-ink/10 text-body text-ink placeholder-ash-light focus:outline-none"
+              style={{ borderBottom: '1px solid rgba(28, 26, 23, 0.1)' }}
+              placeholder="8+ characters"
+            />
+          </div>
+
+          {error && (
+            <p className="text-caption text-clay font-medium">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="ink-button w-full mt-2"
+          >
+            {loading
+              ? 'Working…'
+              : mode === 'login'
+                ? 'Sign in'
+                : 'Create account'}
+          </button>
+        </form>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium text-kiln-600 mb-1">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-3 py-2 rounded-lg border border-kiln-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-kiln-500 focus:border-transparent"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-kiln-600 mb-1">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-            className="w-full px-3 py-2 rounded-lg border border-kiln-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-kiln-500 focus:border-transparent"
-          />
-        </div>
-        {error && <p className="text-xs text-red-600">{error}</p>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2.5 rounded-lg bg-kiln-600 text-white text-sm font-medium hover:bg-kiln-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? 'Working…' : mode === 'login' ? 'Log in' : 'Sign up & log in'}
-        </button>
-      </form>
     </div>
   )
 }
-

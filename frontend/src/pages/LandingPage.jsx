@@ -1,72 +1,174 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
 
-export default function LandingPage() {
+const MESSY_TEXT = `I have too many ideas and I don't know where to start and I keep switching between projects and nothing gets done and I feel like I'm wasting time...`
+
+const FORGED_TEXT = `Prioritize one project for 2 weeks. Define 3 measurable milestones. Block 90-minute deep work sessions. Review progress every Friday.`
+
+function LiveDemo() {
+  const [phase, setPhase] = useState('messy') // messy → forging → forged
+  const [displayText, setDisplayText] = useState('')
+  const timerRef = useRef(null)
+  const charIndex = useRef(0)
+
+  useEffect(() => {
+    // Type out the messy text character by character
+    charIndex.current = 0
+    setDisplayText('')
+
+    timerRef.current = setInterval(() => {
+      if (charIndex.current < MESSY_TEXT.length) {
+        setDisplayText(MESSY_TEXT.slice(0, charIndex.current + 1))
+        charIndex.current++
+      } else {
+        clearInterval(timerRef.current)
+        // After typing is done, pause then forge
+        setTimeout(() => {
+          setPhase('forging')
+          setTimeout(() => {
+            setPhase('forged')
+            setDisplayText(FORGED_TEXT)
+            // Reset after showing forged state
+            setTimeout(() => {
+              setPhase('messy')
+              charIndex.current = 0
+              setDisplayText('')
+              // Restart the typing
+              timerRef.current = setInterval(() => {
+                if (charIndex.current < MESSY_TEXT.length) {
+                  setDisplayText(MESSY_TEXT.slice(0, charIndex.current + 1))
+                  charIndex.current++
+                } else {
+                  clearInterval(timerRef.current)
+                  setTimeout(() => {
+                    setPhase('forging')
+                    setTimeout(() => {
+                      setPhase('forged')
+                      setDisplayText(FORGED_TEXT)
+                    }, 1200)
+                  }, 1500)
+                }
+              }, 30)
+            }, 4000)
+          }, 1200)
+        }, 1500)
+      }
+    }, 30)
+
+    return () => clearInterval(timerRef.current)
+  }, [])
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-kiln-50 via-white to-kiln-50">
-      <header className="border-b border-kiln-100 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="font-semibold text-xl text-kiln-800">MindKiln AI</h1>
-            <p className="text-sm text-kiln-600 mt-0.5">AI Execution Coach</p>
-          </div>
-          <Link
-            to="/app"
-            className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-kiln-700 text-white hover:bg-kiln-800 transition-colors"
-          >
-            Open workspace
-          </Link>
-        </div>
-      </header>
+    <div className="relative bg-white p-6 sm:p-8 shadow-torn" style={{ borderRadius: '2px' }}>
+      {/* Paper texture */}
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: '256px',
+        }}
+      />
 
-      <main className="flex-1 flex items-center">
-        <div className="max-w-4xl mx-auto px-6 py-12 grid gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-center">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-kiln-500 mb-3">
-              AI execution coach
-            </p>
-            <h2 className="text-3xl md:text-4xl font-semibold text-kiln-900 tracking-tight mb-4">
-              Turn messy thoughts into clear execution.
-            </h2>
-            <p className="text-base text-kiln-700 mb-6">
-              MindKiln takes vague, emotional goals and forges them into reality-checked, reframed, and sequenced
-              execution plans. No hype. Just honest structure.
-            </p>
-            <div className="flex flex-wrap gap-3 items-center">
-              <Link
-                to="/app"
-                className="inline-flex items-center px-5 py-2.5 rounded-full text-sm font-medium bg-kiln-700 text-white hover:bg-kiln-800 shadow-sm transition-colors"
-              >
-                Start Planning
-              </Link>
-              <p className="text-xs text-kiln-500">
-                Built for founders, operators, and anyone feeling stuck or overwhelmed.
-              </p>
+      <div className="relative z-10 min-h-[180px]">
+        {phase === 'forging' ? (
+          <div className="flex items-center justify-center h-[180px]">
+            <div className="forge-loading">
+              <div className="ember" />
+              <p className="text-caption text-ash italic font-hand text-lg">Forging clarity…</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-kiln-100 bg-white/80 shadow-sm p-5 space-y-4">
-            <p className="text-xs font-medium text-kiln-500 uppercase tracking-wider">How it thinks</p>
-            <div className="space-y-3 text-xs text-kiln-700">
-              <div className="rounded-xl border border-kiln-100 bg-kiln-50/80 p-3">
-                <p className="font-semibold text-kiln-800 mb-1">Reality Check</p>
-                <p>It names what&apos;s vague, magical-thinking, or emotionally overloaded—gently but clearly.</p>
-              </div>
-              <div className="rounded-xl border border-kiln-100 bg-white p-3">
-                <p className="font-semibold text-kiln-800 mb-1">Reframe</p>
-                <p>It converts the fantasy into a concrete direction you can actually work on.</p>
-              </div>
-              <div className="rounded-xl border border-kiln-100 bg-white p-3">
-                <p className="font-semibold text-kiln-800 mb-1">Execution Plan</p>
-                <p>It sequences the work into realistic, prioritized steps with time estimates.</p>
-              </div>
-              <div className="rounded-xl border border-kiln-200 bg-kiln-900 text-kiln-50 p-3">
-                <p className="font-semibold mb-1">First Action</p>
-                <p>It gives you one small thing you can do in the next 30 minutes to unstick yourself.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+        ) : (
+          <p className={phase === 'forged' ? 'demo-text-forged animate-fade-in' : 'demo-text-messy'}>
+            {displayText}
+            {phase === 'messy' && <span className="inline-block w-0.5 h-5 bg-ink/30 ml-0.5 animate-pulse" />}
+          </p>
+        )}
+      </div>
+
+      {/* Phase label */}
+      <div className="mt-4 pt-4 border-t border-ink/[0.06]">
+        <p className="text-micro uppercase tracking-[0.15em] text-ash">
+          {phase === 'messy' && '↑ Raw brain-dump'}
+          {phase === 'forging' && '⟳ The kiln is working…'}
+          {phase === 'forged' && '✓ Forged into clarity'}
+        </p>
+      </div>
     </div>
   )
 }
 
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-paper flex flex-col">
+      {/* Minimal landing nav */}
+      <nav className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto w-full">
+        <div className="flex items-center gap-3">
+          <span
+            className="h-7 w-7 bg-clay flex items-center justify-center text-paper text-micro font-semibold"
+            style={{ borderRadius: '2px' }}
+          >
+            MK
+          </span>
+          <span className="font-serif text-lg text-ink tracking-tight">MindKiln</span>
+        </div>
+        <Link
+          to="/app"
+          className="text-caption font-medium text-ash hover:text-ink transition-opacity duration-180"
+        >
+          Open workspace →
+        </Link>
+      </nav>
+
+      {/* Hero */}
+      <main className="flex-1 flex items-center">
+        <div className="max-w-5xl mx-auto px-6 py-16 sm:py-24 w-full grid gap-12 lg:gap-20 lg:grid-cols-[1fr_minmax(0,420px)] items-center">
+          {/* Left: editorial headline */}
+          <div>
+            <h1 className="font-serif text-display text-ink text-balance mb-6"
+              style={{ fontSize: 'clamp(2.25rem, 5vw, 3.5rem)' }}>
+              Turn messy thoughts<br />
+              into clear execution.
+            </h1>
+            <p className="text-body-lg text-ash-dark leading-editorial max-w-[480px] mb-8">
+              You arrive overwhelmed. You type the mess. MindKiln forges it
+              into a reality-checked, reframed execution plan — with the first
+              thing to do in the next 30 minutes.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <Link to="/app" className="clay-button">
+                Start Planning
+              </Link>
+              <span className="text-caption text-ash">
+                For founders, operators, and the perpetually overwhelmed.
+              </span>
+            </div>
+
+            {/* Hand-drawn divider */}
+            <hr className="hand-divider mt-10" />
+
+            {/* Subtle feature line */}
+            <div className="flex flex-wrap gap-x-8 gap-y-2 mt-2">
+              {['Reality check', 'Reframe', 'Execution plan', 'First action'].map((item) => (
+                <span key={item} className="text-caption text-ash flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-clay/40 inline-block" />
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: live demo */}
+          <div className="lg:pl-4">
+            <LiveDemo />
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="px-6 py-6 text-center">
+        <p className="text-micro text-ash">
+          MindKiln — not another chatbot. A tool a potter would love.
+        </p>
+      </footer>
+    </div>
+  )
+}

@@ -28,7 +28,7 @@ if not SECRET_KEY:
     raise RuntimeError("JWT_SECRET_KEY must be set in environment variables.")
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))  # default 7 days
 
 
 def _get_password_hash(password: str) -> str:
@@ -119,4 +119,14 @@ def login(user_in: UserCreate, db: Database = Depends(get_db)) -> Token:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed. Check that MongoDB is running and reachable.",
         ) from e
+
+
+@router.get("/me", response_model=UserRead)
+def me(current_user: dict = Depends(get_current_user)) -> UserRead:
+    """Return the currently authenticated user. Used by the frontend to validate a stored token."""
+    return UserRead(
+        id=str(current_user["_id"]),
+        email=current_user["email"],
+        created_at=current_user.get("created_at"),
+    )
 

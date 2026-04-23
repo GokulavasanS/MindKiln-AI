@@ -51,6 +51,9 @@ export const api = {
     }
     return data
   },
+  me() {
+    return request('/auth/me', { method: 'GET' })
+  },
   logout() {
     setAuthToken(null)
   },

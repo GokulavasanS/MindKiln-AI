@@ -2,6 +2,532 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-kiln-50 text-kiln-900 antialiased min-h-screen;
+/* ─── Kiln Paper Design System ─── */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1C1A17;
+    background-color: #FAF7F2;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Paper grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+
+  body > #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  ::selection {
+    background-color: #B65A2A;
+    color: #FAF7F2;
+  }
+
+  /* Serif headings */
+  h1, h2, h3 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-weight: 400;
+    color: #1C1A17;
+  }
+}
+
+@layer components {
+
+  /* ─── Torn Paper Sheet ─── */
+  .torn-paper {
+    position: relative;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(28, 26, 23, 0.06), 0 4px 12px rgba(28, 26, 23, 0.03);
+  }
+
+  .torn-paper::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      #FAF7F2 2%,
+      transparent 4%,
+      #FAF7F2 7%,
+      transparent 9%,
+      #FAF7F2 12%,
+      transparent 14%,
+      #FAF7F2 18%,
+      transparent 20%,
+      #FAF7F2 24%,
+      transparent 27%,
+      #FAF7F2 30%,
+      transparent 33%,
+      #FAF7F2 37%,
+      transparent 40%,
+      #FAF7F2 44%,
+      transparent 47%,
+      #FAF7F2 50%,
+      transparent 53%,
+      #FAF7F2 57%,
+      transparent 60%,
+      #FAF7F2 63%,
+      transparent 66%,
+      #FAF7F2 70%,
+      transparent 73%,
+      #FAF7F2 77%,
+      transparent 80%,
+      #FAF7F2 84%,
+      transparent 87%,
+      #FAF7F2 91%,
+      transparent 94%,
+      #FAF7F2 97%,
+      transparent 100%
+    );
+    z-index: 1;
+  }
+
+  .torn-paper::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(
+      90deg,
+      #FAF7F2 0%,
+      transparent 3%,
+      #FAF7F2 5%,
+      transparent 8%,
+      #FAF7F2 11%,
+      transparent 15%,
+      #FAF7F2 18%,
+      transparent 22%,
+      #FAF7F2 25%,
+      transparent 29%,
+      #FAF7F2 33%,
+      transparent 36%,
+      #FAF7F2 40%,
+      transparent 43%,
+      #FAF7F2 47%,
+      transparent 51%,
+      #FAF7F2 54%,
+      transparent 57%,
+      #FAF7F2 61%,
+      transparent 65%,
+      #FAF7F2 68%,
+      transparent 72%,
+      #FAF7F2 75%,
+      transparent 78%,
+      #FAF7F2 82%,
+      transparent 86%,
+      #FAF7F2 89%,
+      transparent 93%,
+      #FAF7F2 96%,
+      transparent 100%
+    );
+    z-index: 1;
+  }
+
+  /* ─── Ink Button (Forge Plan) ─── */
+  .ink-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    border-radius: 9999px;
+    background-color: #1C1A17;
+    color: #FAF7F2;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    border: none;
+    cursor: pointer;
+    transition: opacity 180ms ease, transform 180ms ease;
+    animation: breathe 4s ease-in-out infinite;
+  }
+
+  .ink-button:hover {
+    opacity: 0.88;
+  }
+
+  .ink-button:active {
+    transform: scale(0.98);
+  }
+
+  .ink-button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    animation: none;
+  }
+
+  /* ─── Clay Button (CTA) ─── */
+  .clay-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2.25rem;
+    border-radius: 9999px;
+    background-color: #B65A2A;
+    color: #FAF7F2;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    border: none;
+    cursor: pointer;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .clay-button:hover {
+    opacity: 0.9;
+  }
+
+  .clay-button:active {
+    transform: scale(0.97);
+  }
+
+  /* ─── Marginalia (coach annotations) ─── */
+  .marginalia {
+    position: relative;
+    padding-left: 1.5rem;
+    font-family: 'Caveat', cursive;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: #5E5850;
+  }
+
+  .marginalia::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #B65A2A;
+    opacity: 0.4;
+    border-radius: 1px;
+  }
+
+  /* ─── Clay Stamp (step completion) ─── */
+  .clay-stamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background-color: #B65A2A;
+    color: #FAF7F2;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+
+  .clay-stamp:hover {
+    opacity: 0.85;
+  }
+
+  .clay-stamp--empty {
+    background-color: transparent;
+    border: 2px solid #B5AFA7;
+    color: transparent;
+  }
+
+  .clay-stamp--empty:hover {
+    border-color: #B65A2A;
+  }
+
+  .clay-stamp--done {
+    animation: stamp 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* ─── Hand-drawn Star (celebration) ─── */
+  .hand-star {
+    display: inline-block;
+    font-family: 'Caveat', cursive;
+    font-size: 1.25rem;
+    color: #B65A2A;
+    animation: stamp 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  /* ─── Chapter Step (vertical rule) ─── */
+  .chapter-step {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+
+  .chapter-step::before {
+    content: '';
+    position: absolute;
+    left: 0.875rem;
+    top: 2.5rem;
+    bottom: 0;
+    width: 2px;
+    background-color: #B65A2A;
+    opacity: 0.18;
+    border-radius: 1px;
+  }
+
+  .chapter-step:last-child::before {
+    display: none;
+  }
+
+  /* ─── Polaroid Note ─── */
+  .polaroid-note {
+    position: relative;
+    background: #fff;
+    padding: 1.75rem;
+    box-shadow: 2px 3px 8px rgba(28, 26, 23, 0.12), 0 1px 2px rgba(28, 26, 23, 0.06);
+    transform: rotate(-1.5deg);
+    border: 1px solid rgba(28, 26, 23, 0.06);
+  }
+
+  .polaroid-note::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 12px;
+    background: rgba(28, 26, 23, 0.06);
+    border-radius: 0 0 2px 2px;
+  }
+
+  /* ─── Kiln Firing Line (progress bar) ─── */
+  .kiln-fire-track {
+    height: 6px;
+    background-color: #F0EBE3;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .kiln-fire-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #D4875A, #B65A2A);
+    transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .kiln-fire-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -1px;
+    bottom: -1px;
+    width: 12px;
+    background: radial-gradient(circle at right, rgba(182, 90, 42, 0.4), transparent);
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* ─── Hand-drawn Divider ─── */
+  .hand-divider {
+    border: none;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      #B5AFA7 0px,
+      #B5AFA7 4px,
+      transparent 4px,
+      transparent 7px,
+      #B5AFA7 7px,
+      #B5AFA7 14px,
+      transparent 14px,
+      transparent 18px,
+      #B5AFA7 18px,
+      #B5AFA7 20px,
+      transparent 20px,
+      transparent 24px
+    );
+    opacity: 0.35;
+    margin: 1.5rem 0;
+  }
+
+  /* ─── Ink Underline on Input ─── */
+  .ink-underline {
+    position: relative;
+  }
+
+  .ink-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #1C1A17;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms ease;
+    opacity: 0.15;
+  }
+
+  .ink-underline:focus-within::after {
+    transform: scaleX(1);
+    opacity: 0.3;
+  }
+
+  /* ─── Goal Textarea: handwriting → serif morph ─── */
+  .goal-textarea {
+    font-family: 'Caveat', cursive;
+    font-size: 1.375rem;
+    line-height: 1.65;
+    color: #1C1A17;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: vertical;
+    width: 100%;
+    min-height: 140px;
+    padding: 1rem 0;
+    transition: font-family 500ms ease, font-size 500ms ease;
+  }
+
+  .goal-textarea::placeholder {
+    color: #B5AFA7;
+    font-style: italic;
+  }
+
+  .goal-textarea.forged {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #3D3832;
+  }
+
+  /* ─── Forge Loading ─── */
+  .forge-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem 0;
+  }
+
+  .forge-loading .ember {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 2px solid #F0EBE3;
+    border-top-color: #B65A2A;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── Demo Animation (Landing) ─── */
+  .demo-text-messy {
+    font-family: 'Caveat', cursive;
+    font-size: 1.25rem;
+    color: #5E5850;
+    line-height: 1.6;
+    transition: all 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .demo-text-forged {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.0625rem;
+    color: #1C1A17;
+    line-height: 1.7;
+    letter-spacing: -0.005em;
+  }
+
+  /* ─── Hover States ─── */
+  a:hover,
+  button:hover {
+    /* Ink darkens 5% — no lift shadows */
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .leading-editorial {
+    line-height: 1.7;
+  }
+
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .ink-button {
+    animation: none;
+  }
+
+  body::before {
+    display: none;
+  }
+}
+
+/* ─── Mobile Adjustments ─── */
+@media (max-width: 360px) {
+  .goal-textarea {
+    font-size: 1.125rem;
+  }
+
+  .polaroid-note {
+    transform: rotate(0deg);
+    padding: 1.25rem;
+  }
 }
